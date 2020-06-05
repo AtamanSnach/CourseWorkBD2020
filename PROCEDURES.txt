@@ -1,0 +1,102 @@
+DELIMITER //
+------------------------------------------------------------------------------------------------
+CREATE PROCEDURE InsertVacancy(IN Requiremen TEXT, IN Dut TEXT,IN Work_Sched TEXT, IN Vacancy_type_nam VARCHAR(20), IN Position_nam VARCHAR(20),
+IN Salar INTEGER, IN ID_of_comp INTEGER)
+BEGIN
+IF Position_nam NOT IN (SELECT Position_name FROM Position WHERE Position_name = Position_nam) THEN
+INSERT INTO Position (Position_name)
+VALUES(Position_nam);
+END IF;
+IF Vacancy_type_nam NOT IN (SELECT Vacancy_type_name FROM Vacancy_type WHERE Vacancy_type_name = Vacancy_type_nam) THEN
+INSERT INTO Vacancy_type (Vacancy_type_name)
+VALUES(Vacancy_type_nam);
+END IF;
+SET @PosID = (SELECT ID_of_position FROM Position WHERE Position_name = Position_nam);
+SET @VacancyTypeID = (SELECT ID_of_vacancy_type FROM Vacancy_type WHERE Vacancy_type_name = Vacancy_type_nam);
+INSERT INTO Vacancy(Requirements,Duties,Work_schedule,ID_of_company,ID_of_vacancy_type,ID_of_position,Salary,ID_of_state,Posting_date)
+VALUES(Requiremen,Dut,Work_Sched,ID_of_comp, @VacancyTypeID, @PosID, Salar,1,NOW());
+END
+//
+================================================================================================
+
+CREATE PROCEDURE InsertCandidate(IN Nam VARCHAR(20),IN Surnam VARCHAR(20), IN Middle_nam VARCHAR(20), IN Candidates_adr VARCHAR(25), IN Candidates_telep VARCHAR(20),
+IN Position_nam VARCHAR(20), IN ID_level_of_educat INTEGER)
+BEGIN
+IF Position_nam NOT IN (SELECT Position_name FROM Position WHERE Position_name = Position_nam) THEN
+INSERT INTO Position (Position_name)
+VALUES(Position_nam);
+END IF;
+SET @ID_of_posit = (SELECT ID_of_position FROM Position WHERE Position_name = Position_nam);
+INSERT INTO Candidate(Name,Surname,Middle_name,Candidates_address,Candidates_telephone,ID_of_position,ID_of_state , ID_level_of_education)
+VALUES (Nam,Surnam,middle_nam, Candidates_adr,Candidates_telep,@ID_of_posit,1,ID_level_of_educat);
+END
+//
+=================================================================================================
+
+CREATE PROCEDURE AddLogRecord(IN ID_of_candidat INTEGER, IN ID_of_vacan INTEGER)
+BEGIN
+INSERT INTO Log(ID_of_candidate,ID_of_vacancy,Record_date)
+VALUES (ID_of_candidat, ID_of_vacan, NOW());
+UPDATE Candidate
+SET ID_of_state = 2 WHERE ID_of_candidate = ID_of_candidat;
+UPDATE Vacancy
+SET ID_of_state = 2 WHERE ID_of_vacancy = ID_of_vacan;
+END
+//
+==============================================================================================
+
+CREATE PROCEDURE AddExperienceRecord(IN ID_of_candidat INTEGER,
+IN Position_nam VARCHAR(20), IN Experience_in_mon INTEGER)
+BEGIN
+IF Position_nam NOT IN (SELECT Position_name FROM Position WHERE Position_name = Position_nam) THEN
+INSERT INTO Position (Position_name)
+VALUES(Position_nam);
+END IF;
+SET @ID_of_posit = (SELECT ID_of_position FROM Position WHERE Position_name = Position_nam);
+INSERT INTO Experience(Experience_in_month, ID_of_candidate,ID_of_position)
+VALUES(Experience_in_mon, ID_of_candidat, @ID_of_posit);
+END
+//
+
+
+
+==============================================================================================
+
+CREATE VIEW Candidate_info AS
+SELECT Candidate.Name,Candidate.Surname,Candidate.Middle_name,
+Candidate.Candidates_address, Candidate.Candidates_telephone,
+Education.Level_of_education_name, Position.Position_name,
+State.State_name
+FROM Candidate INNER JOIN Education ON Candidate.ID_level_of_education = Education.ID_level_of_education INNER JOIN Position ON 
+Candidate.ID_of_position = Position.Id_of_position INNER JOIN State ON Candidate.ID_of_state = State.ID_of_state;
+
+==============================================================================================
+
+CREATE VIEW Vacancy_info AS
+SELECT Vacancy.Requirements, Vacancy.Duties, Vacancy.Work_schedule, 
+Vacancy.Salary, Company.Company_name, Company.Company_telephone, 
+Vacancy_type.Vacancy_type_name,Position.Position_name, State.State_Name,
+Vacancy.Posting_date
+FROM Vacancy INNER JOIN Company ON Vacancy.ID_of_company = Company.ID_of_company INNER JOIN Vacancy_type ON 
+Vacancy.ID_of_vacancy_type = Vacancy_type.ID_of_vacancy_type INNER JOIN Position ON Vacancy.ID_of_position = Position.ID_of_position INNER JOIN
+State ON Vacancy.ID_of_state = State.ID_of_state;
+
+===============================================================================================
+
+CREATE VIEW Log_info AS
+SELECT CONCAT(Candidate.Name," ", Candidate.Surname," " ,Candidate.Middle_name) AS Candidate__,
+Position.Position_name, Vacancy.Posting_date, Log.Record_date
+FROM Candidate INNER JOIN Log ON Candidate.ID_of_candidate = Log.ID_of_candidate INNER JOIN Vacancy 
+ON Log.ID_of_vacancy = Vacancy.ID_of_vacancy INNER JOIN
+Position ON Vacancy.ID_of_position = Position.ID_of_position;
+
+================================================================================================
+
+CREATE VIEW Experience_info AS
+SELECT Position.Position_name, CONCAT(Candidate.Name," ", Candidate.Surname," " ,Candidate.Middle_name) AS "Candidate__", 
+Experience.Experience_in_month FROM Candidate 
+INNER JOIN Experience ON Candidate.ID_of_candidate = Experience.ID_of_candidate 
+INNER JOIN Position ON Experience.ID_of_position = Position.ID_of_position;
+
+
+

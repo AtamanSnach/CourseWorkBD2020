@@ -1,0 +1,126 @@
+CREATE Database JobAgency;
+
+CREATE TABLE State
+(
+	ID_of_state          INTEGER NOT NULL AUTO_INCREMENT,
+	State_name           VARCHAR(20) NULL,
+	PRIMARY KEY (ID_of_state)
+)Engine = InnoDB;
+
+CREATE TABLE Company
+(
+	ID_of_company        INTEGER NOT NULL AUTO_INCREMENT,
+	Company_name         VARCHAR(20) NULL,
+	Company_telephone    CHAR(18) NULL,
+	Company_address      VARCHAR(30) NULL,
+	PRIMARY KEY (ID_of_company)
+)Engine = InnoDB;
+
+CREATE TABLE Education
+(
+	ID_level_of_education INTEGER NOT NULL AUTO_INCREMENT,
+	Level_of_education_name CHAR(18) NULL,
+	PRIMARY KEY (ID_level_of_education)
+)Engine = InnoDB;
+
+CREATE TABLE Position
+(
+	ID_of_position       INTEGER NOT NULL AUTO_INCREMENT,
+	Position_name        VARCHAR(20) NULL,
+	PRIMARY KEY (ID_of_position)
+)Engine = InnoDB;
+
+CREATE TABLE Vacancy_type
+(
+	ID_of_vacancy_type   INTEGER NOT NULL AUTO_INCREMENT,
+	Vacancy_type_name    VARCHAR(20) NULL,
+	PRIMARY KEY (ID_of_vacancy_type)
+	
+)Engine = InnoDB;
+
+
+CREATE TABLE Candidate
+(
+	ID_of_candidate      INTEGER NOT NULL AUTO_INCREMENT,
+	Name                 VARCHAR(20) NULL,
+	Surname              VARCHAR(20) NULL,
+	Middle_name          VARCHAR(20) NULL,
+	Candidates_address   VARCHAR(25) NULL,
+	Candidates_telephone VARCHAR(20) NULL,
+	ID_of_position INTEGER NOT NULL,
+	ID_of_state          INTEGER NOT NULL,
+	ID_level_of_education INTEGER NOT NULL,
+	PRIMARY KEY (ID_of_candidate),
+	FOREIGN KEY R232 (ID_of_state) REFERENCES State (ID_of_state),	
+	FOREIGN KEY R111 (ID_level_of_education) REFERENCES Education (ID_level_of_education)
+)Engine = InnoDB;
+
+ALTER TABLE Candidate
+ADD FOREIGN KEY
+R_17
+(ID_of_position)
+REFERENCES
+Position
+(ID_of_position);
+
+
+CREATE TABLE Experience
+(
+	Experience_in_month  INTEGER NOT NULL,
+	ID_of_candidate      INTEGER NOT NULL,
+	ID_of_experience_record INTEGER NOT NULL AUTO_INCREMENT,
+	ID_of_position       INTEGER NOT NULL,
+	PRIMARY KEY (ID_of_experience_record),
+	FOREIGN KEY R_9 (ID_of_candidate) REFERENCES Candidate(ID_of_candidate) ON UPDATE CASCADE ON DELETE CASCADE
+)Engine = InnoDB;
+
+ALTER TABLE Experience
+ADD FOREIGN KEY
+R_172
+(ID_of_position)
+REFERENCES
+Position
+(ID_of_position);
+
+CREATE TABLE Vacancy
+(
+	ID_of_vacancy        INTEGER NOT NULL AUTO_INCREMENT,
+	Requirements         TEXT NULL,
+	Duties               TEXT NULL,
+	Work_schedule        TEXT NOT NULL,
+	ID_of_company        INTEGER NOT NULL,
+	ID_of_vacancy_type   INTEGER NOT NULL,
+	ID_of_position       INTEGER NOT NULL,
+	Salary               INTEGER NOT NULL,
+	ID_of_state          INTEGER NOT NULL,
+	Posting_date         DATE NOT NULL,
+	PRIMARY KEY (ID_of_vacancy),
+	FOREIGN KEY R_2 (ID_of_company) REFERENCES Company (ID_of_company) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY R_30 (ID_of_vacancy_type) REFERENCES Vacancy_type (ID_of_vacancy_type),
+	FOREIGN KEY R_20 (ID_of_state) REFERENCES State (ID_of_state),
+	FOREIGN KEY R_14 (ID_of_position) REFERENCES Position (ID_of_position)
+	
+	
+)Engine = InnoDB;
+
+
+CREATE TABLE Log
+(
+	Record_date          DATE NULL,
+	ID_of_candidate      INTEGER NOT NULL,
+	ID_of_vacancy        INTEGER NOT NULL,
+	ID_of_record         INTEGER NOT NULL AUTO_INCREMENT,
+	PRIMARY KEY (ID_of_record),
+	FOREIGN KEY R_12 (ID_of_candidate) REFERENCES Candidate (ID_of_candidate) ON UPDATE CASCADE ON DELETE CASCADE,
+	FOREIGN KEY R_13 (ID_of_vacancy) REFERENCES Vacancy (ID_of_vacancy) ON UPDATE CASCADE ON DELETE CASCADE
+)Engine = InnoDB;
+
+
+
+
+
+
+
+
+
+
